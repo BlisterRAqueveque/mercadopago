@@ -15,6 +15,7 @@ import { PayerController } from './payer/payer.controller';
 import { CardEntity } from './card/card.entity';
 import { OrdersEntity } from './order/order.entity';
 import { PayersEntity } from './payer/payer.entity';
+import { Mailer } from 'src/helper/mailer.service';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PayersEntity } from './payer/payer.entity';
     OrderService,
     PayerService,
     PaymentsService,
+    Mailer,
   ],
   controllers: [
     MercadopagoController,

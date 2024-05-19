@@ -21,6 +21,7 @@ import { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types
 import { PaymentsService } from './payments/payments.service';
 import axios from 'axios';
 import { RunnerDto } from 'src/runners.modules/runners/runners.dto';
+import { Mailer } from 'src/helper/mailer.service';
 
 @Injectable()
 export class MercadopagoService {
@@ -44,6 +45,7 @@ export class MercadopagoService {
     @Inject('MERCADO_PAGO_CONFIG')
     private readonly mercadoPagoConfig: any,
     private paymentService: PaymentsService,
+    private readonly mailer: Mailer,
   ) {}
 
   /**
@@ -150,7 +152,6 @@ export class MercadopagoService {
           `https://api.mmrun.hvdevs.com/runners/${payment.additional_info.items[0].id}`,
           responseRunner.data,
         );
-        console.log(editRunner.data);
       } catch (error) {
         console.log(error);
       }
@@ -159,11 +160,13 @@ export class MercadopagoService {
         const result = await this.paymentService.insert({ ...payment });
 
         // Mandar mail
+        this.mailer.sendMail([mail], true);
         console.log(result);
         return response.status;
       } else {
-        throw new HttpException('Payment error', HttpStatus.BAD_REQUEST);
         // Mandar mail de error
+        this.mailer.sendMail([mail], false);
+        throw new HttpException('Payment error', HttpStatus.BAD_REQUEST);
       }
     } catch (e: any) {
       //! Handle errors

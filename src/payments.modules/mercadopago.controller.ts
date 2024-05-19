@@ -26,6 +26,7 @@ export class MercadopagoController {
 
   @Post('notification')
   async notification(@Res() res: Response, @Body() body) {
+    console.log(body);
     if (body.data) {
       const response = await this.service.notification(body.data);
       console.log(response);
