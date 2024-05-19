@@ -15,7 +15,7 @@ const dbConfig: TypeOrmModuleOptions = {
     /* include entities here */
   ],
   autoLoadEntities: true,
-  synchronize: true, // set to false in production
+  synchronize: false, // set to false in production
 };
 
 export default dbConfig;

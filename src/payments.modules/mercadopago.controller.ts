@@ -1,15 +1,27 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post,
+  Res,
+  UseInterceptors,
+} from '@nestjs/common';
 import { MercadopagoService } from './mercadopago.service';
 import { Response } from 'express';
 import { Items } from 'mercadopago/dist/clients/commonTypes';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { RunnerDto } from 'src/runners.modules/runners/runners.dto';
 
 @Controller('mercadopago')
 export class MercadopagoController {
   constructor(private readonly service: MercadopagoService) {}
 
   @Post('create-preference')
-  async createPaymentPreference(@Body() item: Items, @Res() res) {
-    this.service.createPreference(item, res);
+  @UseInterceptors(FileInterceptor('form'))
+  async createPaymentPreference(@Body() item: any, @Res() res) {
+    const itemMp: Items = item;
+    const runner: RunnerDto = item;
+    this.service.createPreference(itemMp, runner, res);
   }
 
   @Post('notification')

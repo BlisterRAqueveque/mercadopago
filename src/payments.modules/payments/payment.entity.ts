@@ -9,6 +9,7 @@ import {
 import { OrdersEntity } from '../order/order.entity';
 import { PayersEntity } from '../payer/payer.entity';
 import { CardEntity } from 'src/payments.modules/card/card.entity';
+import { RunnerEntity } from 'src/runners.modules/runners/runners.entity';
 
 @Entity('payments')
 export class PaymentsEntity {
@@ -44,7 +45,12 @@ export class PaymentsEntity {
   @ManyToOne(() => CardEntity, (card) => card.payment, { cascade: true })
   card: CardEntity;
 
-  @Column('int', { default: 0, comment: 'ID del usuario que realiza el pago' })
+  //@Column('int', { default: 0, comment: 'ID del usuario que realiza el pago' }
+  @JoinColumn({
+    name: 'payer_id',
+    referencedColumnName: 'id',
+  })
+  @ManyToOne(() => RunnerEntity, (payer_id) => payer_id.payment_id)
   payer_id: number;
 
   @Column('text', { nullable: true })

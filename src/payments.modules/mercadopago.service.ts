@@ -20,6 +20,7 @@ import { PaymentResponse } from 'mercadopago/dist/clients/payment/commonTypes';
 import { PaymentCreateData } from 'mercadopago/dist/clients/payment/create/types';
 import { PaymentsService } from './payments/payments.service';
 import axios from 'axios';
+import { RunnerDto } from 'src/runners.modules/runners/runners.dto';
 
 @Injectable()
 export class MercadopagoService {
@@ -49,59 +50,72 @@ export class MercadopagoService {
    * @param res The response of the request
    * @param item Item to pay
    */
-  async createPreference(item: Items, @Res() res) {
+  async createPreference(item: Items, runner: RunnerDto, @Res() res) {
     const pref = new mercadopago.Preference(this.configMp); //! Mp Preference
 
-    const items: Items[] = [
-      {
-        //! Some random item (test only)
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        picture_url: '',
-        category_id: item.category_id, //! PASO LA CATEGORÍA (ID)
-        quantity: item.quantity,
-        currency_id: item.currency_id,
-        unit_price: item.unit_price,
-      },
-    ];
+    try {
+      const response = await axios.post(
+        `https://api.mmrun.hvdevs.com/runners`,
+        runner,
+      );
+      const runnerResponse = response.data;
 
-    const backUrls: BackUrls = {
-      success: `${process.env.WEB_URL}`,
-      failure: `${process.env.WEB_URL}`,
-      pending: `${process.env.WEB_URL}`,
-    };
+      const items: Items[] = [
+        {
+          //! Some random item (test only)
+          id: runnerResponse.id,
+          title: item.title,
+          description: item.description,
+          picture_url: '',
+          category_id: item.category_id, //! PASO LA CATEGORÍA (ID)
+          quantity: +item.quantity,
+          currency_id: item.currency_id,
+          unit_price: +item.unit_price,
+        },
+      ];
 
-    const redirectUrl: RedirectUrls = {
-      success: '',
-      failure: '',
-      pending: '',
-    };
+      const backUrls: BackUrls = {
+        success: `${process.env.WEB_URL}`,
+        failure: `${process.env.WEB_URL}`,
+        pending: `${process.env.WEB_URL}`,
+      };
 
-    const preference: PreferenceRequest = {
-      items: items,
-      purpose: 'wallet_purchase',
-      back_urls: backUrls,
-      // redirect_urls: redirectUrl,
-      // expires: false,
-      // expiration_date_from: '',
-      // expiration_date_to: ''
-      auto_return: 'approved',
-      notification_url: `${process.env.API_URL}api/mercadopago/notification`,
-    };
+      const redirectUrl: RedirectUrls = {
+        success: '',
+        failure: '',
+        pending: '',
+      };
 
-    //* Create the preference and sends to the MP server
-    pref
-      .create({
-        body: preference,
-        requestOptions: this.options,
-      })
-      .then((response: PreferenceResponse) => {
-        res.status(HttpStatus.OK).json(response); //! Send only init_point
-      })
-      .catch((e: any) => {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(e);
-      });
+      const preference: PreferenceRequest = {
+        items: items,
+        purpose: 'wallet_purchase',
+        back_urls: backUrls,
+        // redirect_urls: redirectUrl,
+        // expires: false,
+        // expiration_date_from: '',
+        // expiration_date_to: ''
+        auto_return: 'approved',
+        notification_url: `${process.env.API_URL}api/mercadopago/notification`,
+      };
+
+      //* Create the preference and sends to the MP server
+      pref
+        .create({
+          body: preference,
+          requestOptions: this.options,
+        })
+        .then((response: PreferenceResponse) => {
+          res.status(HttpStatus.OK).json(response); //! Send only init_point
+        })
+        .catch((e: any) => {
+          console.log(e);
+          res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(e);
+        });
+    } catch (error) {
+      //* Caso que falle, se envía el error
+      console.log(error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
+    }
   }
 
   /**
@@ -116,13 +130,40 @@ export class MercadopagoService {
       );
 
       let payment: PaymentResponse = response.data;
-      
+
+      let mail;
+      try {
+        const responseRunner = await axios.get(
+          `https://api.mmrun.hvdevs.com/runners/${payment.additional_info.items[0].id}`,
+        );
+
+        mail = responseRunner.data.email;
+
+        responseRunner.data.status = payment.status;
+        responseRunner.data.status_detail = payment.status_detail;
+        responseRunner.data.payment_amount =
+          payment.additional_info.items[0].unit_price;
+        responseRunner.data.payment_id = payment.id;
+        responseRunner.data.mailSent = true;
+
+        const editRunner = await axios.put(
+          `https://api.mmrun.hvdevs.com/runners/${payment.additional_info.items[0].id}`,
+          responseRunner.data,
+        );
+        console.log(editRunner.data);
+      } catch (error) {
+        console.log(error);
+      }
+
       if (payment.status === 'approved') {
         const result = await this.paymentService.insert({ ...payment });
+
+        // Mandar mail
         console.log(result);
         return response.status;
       } else {
         throw new HttpException('Payment error', HttpStatus.BAD_REQUEST);
+        // Mandar mail de error
       }
     } catch (e: any) {
       //! Handle errors
