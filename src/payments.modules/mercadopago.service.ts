@@ -134,12 +134,24 @@ export class MercadopagoService {
       let payment: PaymentResponse = response.data;
 
       let mail;
+      let data;
       try {
         const responseRunner = await axios.get(
           `https://api.mmrun.hvdevs.com/runners/${payment.additional_info.items[0].id}`,
         );
 
         mail = responseRunner.data.email;
+
+        //? asignamos valores a la variable data de los datos que recogemos desde la respuesta de la api de corredores
+        data = {
+          runnerName : responseRunner.data.name,
+          runnerId: responseRunner.data.id,
+          raceName: responseRunner.data.catValue,
+          raceCost: payment.additional_info.items[0].unit_price,
+          tshirtSize: responseRunner.data.tshirtSize,
+          paymentNumber: payment.id,
+          paymentStatus: payment.status_detail
+        }
 
         responseRunner.data.status = payment.status;
         responseRunner.data.status_detail = payment.status_detail;
@@ -160,12 +172,13 @@ export class MercadopagoService {
         const result = await this.paymentService.insert({ ...payment });
 
         // Mandar mail
-        this.mailer.sendMail([mail], true);
+        //? pasamos la variable data
+        this.mailer.sendMail([mail], true, data);
         console.log(result);
         return response.status;
       } else {
         // Mandar mail de error
-        this.mailer.sendMail([mail], false);
+        this.mailer.sendMail([mail], false, data);
         throw new HttpException('Payment error', HttpStatus.BAD_REQUEST);
       }
     } catch (e: any) {
