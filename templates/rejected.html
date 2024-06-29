@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Montserrat", sans-serif;
+      background-color: #f6f6f6;
+      color: #333;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      padding: 20px 0;
+      background-color: #00faba;
+      color: #5247b9;
+      border-radius: 15px 15px 0 0;
+      font-style: italic;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 900;
+    }
+    .content {
+      padding: 20px;
+    }
+    .content p {
+      line-height: 1.6;
+      margin: 0 0 10px;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 12px;
+      color: #777;
+      background-color: #f1f1f1;
+      border-radius: 0 0 10px 10px;
+    }
+    .footer a {
+      color: #5247b9;
+      text-decoration: none;
+    }
+    @media only screen and (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+      .content {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+        <strong><h1>MMRUN '24</h1></strong>
+        <h1>INSCRIPCION NO EXITOSA!</h1>
+    </div>
+    <div class="content">
+        <p>Hola {{runnerName}},</p>
+        <p>UPS! Al parecer hubo un problema con el pago de la inscripción.</p>
+        <p><strong>Detalles del pago:</strong></p>
+        <p>
+        Numero de pago: {{paymentNumber}}<br>
+        Estado del pago: {{paymentStatus}}<br>
+        Circuito: {{raceName}}<br>
+        Costo: {{raceCost}}<br>
+        Talle Camiseta: {{tshirtSize}}
+        </p>
+        <p>Puedes intentar nuevamente la inscripción haciendo clic <a href="https://mmrun.com.ar/registro/">acá</a></p>
+        <p>No olvides suscribirte a nuestras redes para informarte de las actualizaciones que iremos subiendo. Si tienes dudas puedes escribirnos a <a href="mailto:notificacionesmmrun@gmail.com">notificacionesmmrun@gmail.com</a></p>   
+      <p>Saludos,</p>
+      <p>Team MMRun 2024</p>
+    </div>
+    <div class="footer">
+      <p>&copy; MMRun 2024. Todos los derechos reservados.</p>
+      <p>
+        <a href="https://mmrun.com.ar/registro/">Nueva inscripción</a> | 
+        <a href="https://mmrun.com.ar">Visita nuestro sitio</a>
+      </p>
+      <p>
+        Desarrollado e implementado por 
+        <strong><a href="https://hvdevs.com">HVDevs</a></strong>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
