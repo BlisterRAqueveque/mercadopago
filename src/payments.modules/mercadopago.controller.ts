@@ -88,10 +88,28 @@ export class MercadopagoController {
   //? Test Only Purposes
   @Post('send-mail')
   /**@test Test Only Not for use */
-  async sendMail(@Body() runnerId: number, @Body() runnerEmail: string, @Body() approved: boolean, @Res() res) {
-    let data 
+  async sendMail(@Body() body: any, @Res() res) {
+    const { runnerId,
+      runnerEmail,
+      approved,
+    } = body
+    let responseRunner 
+    let data
+    
+    responseRunner = await this.mailService.getRunnerData(runnerId.toString())
 
-    data = await this.mailService.getRunnerData()
+    console.log(responseRunner)
+
+    data = {
+      runnerName : responseRunner.data.name,
+      runnerId: responseRunner.data.id,
+      raceName: responseRunner.data.catValue,
+      raceCost: "payment.additional_info.items[0].unit_price",
+      tshirtSize: responseRunner.data.tshirtSize,
+      paymentNumber: "payment.id",
+      paymentStatus: "payment.status_detail"
+    }
+
 
     this.mailService.sendMail([runnerEmail], approved, data)
   } 

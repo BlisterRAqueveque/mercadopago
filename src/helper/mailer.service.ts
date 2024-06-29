@@ -17,7 +17,7 @@ export class Mailer {
 
   //? creamos funcion para leer templates, pasamos el nombre del template y los datos
   private async getTemplate(templateName: string, data: any): Promise<string> {
-    const filePath = path.join(__dirname, 'templates', `${templateName}.html`)
+    const filePath = `./templates/${templateName}.html`
     //? leemos el archivo
     const template = await fs.promises.readFile(filePath, 'utf-8')
     //? reemplazamos los datos con la funcion replace placeholders
@@ -52,13 +52,13 @@ export class Mailer {
   }
 
   //? creamos funcion para obtener datos del corredor
-  async getRunnerData(): Promise<any> {
+  async getRunnerData(id: string): Promise<any> {
     try {
-      const response = await axios.get('https://api.mmrun.hvdevs.com/runners')
-      return response.data
+      const response = await axios.get('https://api.mmrun.hvdevs.com/runners/'+id)
+      return response
       
     } catch (error) {
-      
+      return error
     }
   }
 

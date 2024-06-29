@@ -156,7 +156,7 @@ export class MercadopagoService {
         responseRunner.data.status = payment.status;
         responseRunner.data.status_detail = payment.status_detail;
         responseRunner.data.payment_amount =
-          payment.additional_info.items[0].unit_price;
+        payment.additional_info.items[0].unit_price;
         responseRunner.data.payment_id = payment.id;
         responseRunner.data.mailSent = true;
 
