@@ -1,9 +1,11 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import axios from 'axios';
 
 //? mso: importamos fs y path
 import * as fs from 'fs';
 import * as path from 'path';
+import { RunnerDto } from 'src/runners.modules/runners/runners.dto';
 
 const model = (item: any) => {
   return ``;
@@ -48,4 +50,16 @@ export class Mailer {
       return { rejected: [to] };
     }
   }
+
+  //? creamos funcion para obtener datos del corredor
+  async getRunnerData(): Promise<any> {
+    try {
+      const response = await axios.get('https://api.mmrun.hvdevs.com/runners')
+      return response.data
+      
+    } catch (error) {
+      
+    }
+  }
+
 }

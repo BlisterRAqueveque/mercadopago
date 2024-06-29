@@ -11,10 +11,15 @@ import { Response } from 'express';
 import { Items } from 'mercadopago/dist/clients/commonTypes';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RunnerDto } from 'src/runners.modules/runners/runners.dto';
+import { Mailer } from 'src/helper/mailer.service';
 
 @Controller('mercadopago')
 export class MercadopagoController {
-  constructor(private readonly service: MercadopagoService) {}
+  constructor(
+    private readonly service: MercadopagoService,
+    /** @test Test Only Purposes*/
+    private readonly mailService: Mailer 
+    ) {}
 
   @Post('create-preference')
   @UseInterceptors(FileInterceptor('form'))
@@ -79,6 +84,17 @@ export class MercadopagoController {
   async userPaymentPreference(@Body() item: Items, @Res() res) {
     this.service.userPaymentPreference(item, res);
   }
+
+  //? Test Only Purposes
+  @Post('send-mail')
+  /**@test Test Only Not for use */
+  async sendMail(@Body() runnerId: number, @Body() runnerEmail: string, @Body() approved: boolean, @Res() res) {
+    let data 
+
+    data = await this.mailService.getRunnerData()
+
+    this.mailService.sendMail([runnerEmail], approved, data)
+  } 
 
   @Post('user-notification')
   /**@deprecated Not for use */
