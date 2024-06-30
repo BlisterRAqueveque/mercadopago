@@ -31,10 +31,8 @@ export class MercadopagoController {
 
   @Post('notification')
   async notification(@Res() res: Response, @Body() body) {
-    console.log(body);
     if (body.data) {
       const response = await this.service.notification(body.data);
-      console.log(response);
       //! Mercadopago needs the response from our server:
       switch (response) {
         case 404: {
@@ -67,7 +65,6 @@ export class MercadopagoController {
   @Post('card-payment-parking')
   /**@deprecated Not for use */
   async cardPayment(@Res() res: Response, @Body() body) {
-    console.log(body);
     if (body) {
       const result = await this.service.cardPaymentDone(body);
       res.status(HttpStatus.OK).json(result);
@@ -98,8 +95,6 @@ export class MercadopagoController {
     
     responseRunner = await this.mailService.getRunnerData(runnerId.toString())
 
-    console.log(responseRunner)
-
     data = {
       runnerName : responseRunner.data.name,
       runnerId: responseRunner.data.id,
@@ -110,14 +105,12 @@ export class MercadopagoController {
       paymentStatus: "payment.status_detail"
     }
 
-
     this.mailService.sendMail([runnerEmail], approved, data)
   } 
 
   @Post('user-notification')
   /**@deprecated Not for use */
   async userNotification(@Res() res: Response, @Body() body) {
-    console.log(body);
     if (body.data) {
       const response = await this.service.parkingUserPaymentDone(body.data);
       //! Mercadopago needs the response from our server:
@@ -149,7 +142,6 @@ export class MercadopagoController {
   @Post('card-user-payment-parking')
   /**@deprecated Not for use */
   async cardUserPayment(@Res() res: Response, @Body() body) {
-    // console.log(body)
     if (body) {
       const result = await this.service.cardUserPaymentDone(body);
       res.status(HttpStatus.OK).json(result);
@@ -167,10 +159,8 @@ export class MercadopagoController {
   @Post('card-notification')
   /**@deprecated Not for use */
   async cardNotification(@Res() res: Response, @Body() body) {
-    console.log(body);
     if (body.data) {
       const response = await this.service.cardNotification(body.data);
-      console.log(response);
     }
   }
   //* Deprecated

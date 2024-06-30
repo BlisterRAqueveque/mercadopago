@@ -50,4 +50,8 @@ export class RunnerDto {
   createdAt: Date;
 
   updatedAt: Date;
+
+  city: string;
+
+  phone: string;
 }

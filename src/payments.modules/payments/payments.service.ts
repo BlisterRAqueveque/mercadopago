@@ -56,7 +56,7 @@ export class PaymentsService {
 
       return await this.paymentRepository.save(new_payment);
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
       throw new HttpException(`${e.message}`, e.status);
     }
   }

@@ -110,12 +110,12 @@ export class MercadopagoService {
           res.status(HttpStatus.OK).json(response); //! Send only init_point
         })
         .catch((e: any) => {
-          console.log(e);
+          console.error(e);
           res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(e);
         });
     } catch (error) {
       //* Caso que falle, se envía el error
-      console.log(error);
+      console.error(error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(error);
     }
   }
@@ -127,6 +127,7 @@ export class MercadopagoService {
    */
   async notification(@Body() body) {
     try {
+      //* Obtenemos el pago de MercadoPago
       const response = await axios.get(
         `https://api.mercadopago.com/v1/payments/${body.id}?access_token=${this.configMp.accessToken}`,
       );
@@ -139,25 +140,36 @@ export class MercadopagoService {
         const responseRunner = await axios.get(
           `https://api.mmrun.hvdevs.com/runners/${payment.additional_info.items[0].id}`,
         );
+        console.error(responseRunner);
+        /** Edita la información del usuario, con el pago y demás */
+        responseRunner.data.status = payment.status;
+        responseRunner.data.status_detail = payment.status_detail;
+        responseRunner.data.payment_amount =
+          payment.additional_info.items[0].unit_price;
+        responseRunner.data.payment_id = payment.id;
+        responseRunner.data.mailSent = true;
 
         mail = responseRunner.data.email;
 
         //? asignamos valores a la variable data de los datos que recogemos desde la respuesta de la api de corredores
         data = {
-          runnerName : responseRunner.data.name,
+          runnerName: responseRunner.data.name,
           runnerId: responseRunner.data.id,
           raceName: responseRunner.data.catValue,
           raceCost: payment.additional_info.items[0].unit_price,
           tshirtSize: responseRunner.data.tshirtSize,
           paymentNumber: payment.id,
-          paymentStatus: payment.status_detail
-        }
+          paymentStatus: payment.status_detail,
+        };
 
-        responseRunner.data.status = payment.status;
-        responseRunner.data.status_detail = payment.status_detail;
-        responseRunner.data.payment_amount =
-        payment.additional_info.items[0].unit_price;
-        responseRunner.data.payment_id = payment.id;
+        //* Dejamos asíncrono para que no interrumpa el flujo de la app
+        this.mailer.sendMail(
+          [mail],
+          payment.status === 'approved' ? true : false,
+          data,
+        );
+
+        //? Le asignamos que se envió el mail
         responseRunner.data.mailSent = true;
 
         const editRunner = await axios.put(
@@ -165,7 +177,7 @@ export class MercadopagoService {
           responseRunner.data,
         );
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
 
       if (payment.status === 'approved') {
@@ -174,7 +186,7 @@ export class MercadopagoService {
         // Mandar mail
         //? pasamos la variable data
         this.mailer.sendMail([mail], true, data);
-        console.log(result);
+        console.error(result);
         return response.status;
       } else {
         // Mandar mail de error
@@ -206,7 +218,6 @@ export class MercadopagoService {
       //* Get the item from the client
       const items: Items[] = [];
       items.push({ ...body.item, currency_id: undefined });
-      console.log(items);
       const data = await payment.create({
         // body
         body: {
@@ -232,8 +243,6 @@ export class MercadopagoService {
         //     idempotencyKey: '0d5020ed-1af6-469c-ae06-c3bec19954bb'
         // }
       });
-      console.log(data);
-
       if (data.status === 'approved') {
         //! Insert payment into database
         const item = body.item;
@@ -251,16 +260,15 @@ export class MercadopagoService {
             msg: 'approved',
           };
         } catch (error) {
-          console.log(error);
+          console.error(error);
           return { ok: false, msg: 'rejected' };
         }
       } else if (data.status === 'rejected') {
-        console.log(data);
-        console.log('El pago no fue aprobado.');
+        console.error('El pago no fue aprobado.');
         return { ok: false, msg: 'rejected' };
       }
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
       throw new HttpException(e.message, e.status);
     }
   }
@@ -271,7 +279,6 @@ export class MercadopagoService {
       `https://api.mercadopago.com/v1/payments/${body.id}?access_token=${this.configMp.accessToken}`,
     );
     let payment: PaymentResponse = response.data;
-    console.log(payment);
   }
 
   //! USER'S SECTION --------------------------------------------------------------------->
@@ -362,7 +369,7 @@ export class MercadopagoService {
           }
         } catch (error) {
           //TODO REFUND in case of fail
-          console.log(error);
+          console.error(error);
         }
 
         return response.status;
@@ -425,16 +432,15 @@ export class MercadopagoService {
 
           return { ok: true, msg: 'approved' };
         } catch (error) {
-          console.log(error);
+          console.error(error);
           return { ok: false, msg: 'rejected' };
         }
       } else if (data.status === 'rejected') {
-        console.log(data);
-        console.log('El pago no fue aprobado.');
+        console.error('El pago no fue aprobado.');
         return { ok: false, msg: 'rejected' };
       }
     } catch (e: any) {
-      console.log(e);
+      console.error(e);
       throw new HttpException(e.message, e.status);
     }
   }

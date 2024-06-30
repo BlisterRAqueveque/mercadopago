@@ -85,4 +85,10 @@ export class RunnerEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  city: string;
+
+  @Column({ nullable: true })
+  phone: string;
 }

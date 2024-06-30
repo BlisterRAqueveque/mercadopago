@@ -43,10 +43,9 @@ export class Mailer {
         //? pasamos el template modificado
         html,
       });
-      console.log(response);
       return response;
     } catch (e) {
-      console.log(e);
+      console.error(e);
       return { rejected: [to] };
     }
   }

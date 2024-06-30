@@ -7,7 +7,6 @@ import { RunnersModule } from './runners.modules/runners.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 
 const env = process.env.ENV_DEVELOPMENT;
-
 @Module({
   imports: [
     ConfigModule.forRoot({
