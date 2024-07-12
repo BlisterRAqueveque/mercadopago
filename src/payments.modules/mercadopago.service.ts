@@ -100,19 +100,68 @@ export class MercadopagoService {
         notification_url: `${process.env.API_URL}api/mercadopago/notification`,
       };
 
-      //* Create the preference and sends to the MP server
-      pref
-        .create({
-          body: preference,
-          requestOptions: this.options,
-        })
-        .then((response: PreferenceResponse) => {
-          res.status(HttpStatus.OK).json(response); //! Send only init_point
-        })
-        .catch((e: any) => {
-          console.error(e);
-          res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(e);
-        });
+      //? Added 20240712: for Caminata circuit no charges should be applied
+
+      //? check if description is Caminata
+      if(item.description === "Caminata"){
+
+        //? create an object with runner data for mail purposes
+        let datos = {
+          runnerName: runnerResponse.name,
+          runnerId: runnerResponse.id,
+          raceName: runnerResponse.catValue,
+          raceCost: "$ 0.00", //? no cost
+          tshirtSize: runnerResponse.tshirtSize,
+          paymentNumber: "No hubieron cargos", //? no cost
+          paymentStatus: "No hubieron cargos", //? no cost
+        };
+
+        //? send the email with the previous runner data for mail purpose
+        await this.mailer.sendMail([runnerResponse.email], true, datos)
+
+        //? edit the statuses of mail sent and payment status for the runner
+        runnerResponse.mailSent = true
+        runnerResponse.status = "approved"
+
+        //? put the changes on db
+        const editRunner = await axios.put(
+          `https://api.mmrun.hvdevs.com/runners/${runnerResponse.id}`,
+          runnerResponse,
+        );
+
+        //? create the url params and define the success url manually
+        let u = "?status=approved"
+        let r = `&runner_id=${runnerResponse.id}`
+        let init_point = "https://mmrun.com.ar/registro/"+u+r
+
+
+        //? pass the defined url as an object
+        let data = {
+          init_point
+        }
+        //? response with a status OK, and pass the url object in a json response
+        res.status(HttpStatus.OK).json(data)
+      }
+
+      //? the previous logic now is the else condition if circuit is not Caminata
+      else {
+
+        //* Create the preference and sends to the MP server
+        pref
+          .create({
+            body: preference,
+            requestOptions: this.options,
+          })
+          .then((response: PreferenceResponse) => {
+            res.status(HttpStatus.OK).json(response); //! Send only init_point
+          })
+          .catch((e: any) => {
+            console.error(e);
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(e);
+          });
+
+      }
+
     } catch (error) {
       //* Caso que falle, se envía el error
       console.error(error);
