@@ -1,8 +1,8 @@
-//! Inject config module
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { envs } from './envs';
 
 export const mercadoPagoConfig = {
   //! Seller auth key
-  accessToken: process.env.MP_ACCESS_TOKEN,
+  accessToken: envs.MP_ACCESS_TOKEN,
 };
+
+export const MP_PROVIDER = 'MERCADO_PAGO_CONFIG';

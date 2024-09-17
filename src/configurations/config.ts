@@ -1,15 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { envs } from './envs';
 
-//! Inject config module
-import * as dotenv from 'dotenv';
-dotenv.config();
-const env = process.env.ENV_DEVELOPMENT;
+const dbUrl = `postgres://${envs.DB_USERNAME}:${envs.DB_PASSWORD}@${envs.DB_HOST}:${envs.DB_PORT}/${envs.DB_DATABASE}`;
 
-if (env) dotenv.config({ path: `./env/${env}.env` });
-
-const dbUrl = `postgres://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`;
-
-const dbConfig: TypeOrmModuleOptions = {
+export const dbConfig: TypeOrmModuleOptions = {
   type: 'postgres',
   url: dbUrl,
   entities: [
@@ -18,5 +12,3 @@ const dbConfig: TypeOrmModuleOptions = {
   autoLoadEntities: true,
   synchronize: false, // set to false in production
 };
-
-export default dbConfig;
