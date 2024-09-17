@@ -4,7 +4,6 @@ import { PaymentsEntity } from './payments/payment.entity';
 import { MercadopagoController } from './mercadopago.controller';
 import { MercadopagoService } from './mercadopago.service';
 import { PaymentsService } from './payments/payments.service';
-import { mercadoPagoConfig } from 'src/configurations/mercadopago.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CardService } from './card/card.service';
 import { OrderService } from './order/order.service';
@@ -16,6 +15,7 @@ import { CardEntity } from './card/card.entity';
 import { OrdersEntity } from './order/order.entity';
 import { PayersEntity } from './payer/payer.entity';
 import { Mailer } from 'src/helper/mailer.service';
+import { mercadoPagoConfig, MP_PROVIDER } from 'src/configurations';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { Mailer } from 'src/helper/mailer.service';
   providers: [
     MercadopagoService,
     {
-      provide: 'MERCADO_PAGO_CONFIG',
+      provide: MP_PROVIDER,
       useValue: mercadoPagoConfig,
     },
     PaymentsService,
