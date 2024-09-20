@@ -9,7 +9,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('runner')
 export class RunnerEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -53,6 +53,9 @@ export class RunnerEntity {
   // added 230618
   @Column({ nullable: true })
   preference_id: string;
+
+  @Column({ nullable: true })
+  payment_amount: string;
 
   //! Se crea relación added 230628
   @JoinColumn({
